@@ -7,7 +7,14 @@ public class Elder {
 	private String address;
 	private String phone;
 	private String mac;
+	private String image;
 	
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
 	@Override
 	public String toString() {
 		return "Elder [nic=" + nic + ", name=" + name + ", address=" + address + ", phone=" + phone + ", mac=" + mac

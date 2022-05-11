@@ -255,6 +255,7 @@ public class WebController {
 			elder.setAddress((String) elderdetails.get("address"));
 			elder.setPhone((String) elderdetails.get("phone"));
 			elder.setMac((String) elderdetails.get("mac"));
+			elder.setImage((String) elderdetails.get("image"));
 
 			List<Home> homes = homeService.getHomes();
 			for (Home home1 : homes) {
@@ -301,6 +302,7 @@ public class WebController {
 			elder.setAddress((String) elderdetails.get("address"));
 			elder.setPhone((String) elderdetails.get("phone"));
 			elder.setMac((String) elderdetails.get("mac"));
+			elder.setImage((String) elderdetails.get("image"));
 
 			Home home = homeService.getHomeDetail(homeId);
 			CareTaker ct = null;
@@ -323,6 +325,7 @@ public class WebController {
 			eldertoupdate.setAddress(elder.getAddress());
 			eldertoupdate.setPhone(elder.getPhone());
 			eldertoupdate.setMac(elder.getMac());
+			eldertoupdate.setImage(elder.getImage());
 
 			homeService.addHome(home);
 
@@ -386,6 +389,7 @@ public class WebController {
 						elderdetailstosend.put("mac", exisitngelder.getMac());
 						elderdetailstosend.put("houseid", home1.getHomeId());
 						elderdetailstosend.put("careTakerNic", existingct.getNic());
+						elderdetailstosend.put("image", exisitngelder.getImage());
 						elders.add(elderdetailstosend);
 					}
 
@@ -401,7 +405,7 @@ public class WebController {
 	}
 
 	// **********
-	// Elders
+	// Common
 	// **********
 
 	@GetMapping("web/private/summary")
