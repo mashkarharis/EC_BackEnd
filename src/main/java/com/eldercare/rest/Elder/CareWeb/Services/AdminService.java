@@ -4,8 +4,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.eldercare.rest.Elder.CareWeb.Filter.CustomWebFilter;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -14,6 +17,7 @@ import com.google.firebase.cloud.FirestoreClient;
 
 @Service
 public class AdminService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdminService.class);
 
 	public String loginAdmin(String username, String password) throws Exception {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
@@ -42,7 +46,7 @@ public class AdminService {
 
 		DocumentSnapshot document = future.get();
 		Map<String, Object> adminCreds = document.getData();
-
+		LOGGER.info(adminCreds.get("token").toString());
 		return adminCreds.get("token").toString().equals(token);
 
 	}

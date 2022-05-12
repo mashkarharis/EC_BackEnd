@@ -1,15 +1,11 @@
 package com.eldercare.rest.Elder.CareWeb.Controllers;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -413,10 +409,9 @@ public class WebController {
 	// **********
 
 	@GetMapping("web/private/summary")
-	public Map<String, Object> getSummary(HttpServletRequest req) {
+	public Map<String, Object> getSummary() {
 		try {
-			String origin = req.getHeader(HttpHeaders.ORIGIN);
-			System.out.println(origin);
+
 			List<Home> homes = homeService.getHomes();
 			
 			int noOfHomes=0;
