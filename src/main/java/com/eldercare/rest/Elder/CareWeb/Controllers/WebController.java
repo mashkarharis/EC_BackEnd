@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -414,7 +415,7 @@ public class WebController {
 	@GetMapping("web/private/summary")
 	public Map<String, Object> getSummary(HttpServletRequest req) {
 		try {
-			String origin = URI.create(req.getRequestURL().toString()).getHost();
+			String origin = req.getHeader(HttpHeaders.ORIGIN);
 			System.out.println(origin);
 			List<Home> homes = homeService.getHomes();
 			
