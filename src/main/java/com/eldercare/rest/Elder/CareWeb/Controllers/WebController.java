@@ -25,7 +25,7 @@ import com.eldercare.rest.Elder.CareWeb.Models.Home;
 import com.eldercare.rest.Elder.CareWeb.Services.AdminService;
 import com.eldercare.rest.Elder.CareWeb.Services.HomeService;
 
-@CrossOrigin
+@CrossOrigin(origins = "https://ecfrontend3214.herokuapp.com")
 @RestController
 public class WebController {
 
