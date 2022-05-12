@@ -1,9 +1,12 @@
 package com.eldercare.rest.Elder.CareWeb.Controllers;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +28,7 @@ import com.eldercare.rest.Elder.CareWeb.Models.Home;
 import com.eldercare.rest.Elder.CareWeb.Services.AdminService;
 import com.eldercare.rest.Elder.CareWeb.Services.HomeService;
 
-@CrossOrigin(origins = "https://ecfrontend3214.herokuapp.com")
+@CrossOrigin
 @RestController
 public class WebController {
 
@@ -409,9 +412,10 @@ public class WebController {
 	// **********
 
 	@GetMapping("web/private/summary")
-	public Map<String, Object> getSummary() {
+	public Map<String, Object> getSummary(HttpServletRequest req) {
 		try {
-
+			String origin = URI.create(req.getRequestURL().toString()).getHost();
+			System.out.println(origin);
 			List<Home> homes = homeService.getHomes();
 			
 			int noOfHomes=0;
