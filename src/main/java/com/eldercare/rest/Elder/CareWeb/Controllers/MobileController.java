@@ -1,5 +1,6 @@
 package com.eldercare.rest.Elder.CareWeb.Controllers;
 
+import java.io.ObjectOutputStream.PutField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.eldercare.rest.Elder.CareWeb.Models.CareTaker;
+import com.eldercare.rest.Elder.CareWeb.Models.Coordinate;
 import com.eldercare.rest.Elder.CareWeb.Models.Elder;
 import com.eldercare.rest.Elder.CareWeb.Models.Home;
 import com.eldercare.rest.Elder.CareWeb.Models.Token;
 import com.eldercare.rest.Elder.CareWeb.Services.HomeService;
+import com.eldercare.rest.Elder.CareWeb.Services.IoTService;
 import com.eldercare.rest.Elder.CareWeb.Services.MobileService;
 
 @CrossOrigin
@@ -30,6 +33,8 @@ public class MobileController {
 	HomeService homeService;
 	@Autowired
 	MobileService mobileTokenService;
+	@Autowired
+	IoTService ioTService;
 
 	// **********
 	// AUTH
@@ -324,6 +329,68 @@ public class MobileController {
 		}
 		
 		return account;
+	}
+	
+	@PostMapping("/mobile/private/elderonmap")
+	public List<Map<String, Object>> onMap(@RequestBody Map<String, Object> payload) throws Exception {
+		String token = payload.get("token").toString();
+		System.out.println(token);
+		List<Token> tokelist = mobileTokenService.getTokens();
+		System.out.println(tokelist.toString());
+		String email = null;
+		for (Token storedToken : tokelist) {
+			if (token.equals(storedToken.getToken())) {
+				email = storedToken.getEmail();
+				break;
+			}
+		}
+		if (email == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+		}
+
+		System.out.println(email);
+		List<Elder> elderlist=null;
+		List<Home> homes = homeService.getHomes();
+		double homelat=0;
+		double homelon=0;
+		for (Home home : homes) {
+			for (CareTaker ct : home.getCareTakers()) {
+				if (ct.getEmail().equals(email)) {
+					homelat=home.getLat();
+					homelon=home.getLon();
+					elderlist= ct.getElders();
+				}
+			}
+		}
+
+		if (elderlist==null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+		}
+		
+		List<Coordinate> coordinates=ioTService.getCoordinates();
+		
+		List<Map<String,Object>> map=new ArrayList<>();
+		//System.out.println(coordinates);
+		
+		for (Elder elder : elderlist) {
+			for (Coordinate coordinate : coordinates) {
+				System.out.println(elder.getMac()+" - "+coordinate.getMac());
+				if (elder.getMac().length()>0 && elder.getMac().equals(coordinate.getMac())) {
+					HashMap<String, Object> data=new HashMap<String, Object>();
+					data.put("name", elder.getName());
+					data.put("nic", elder.getNic());
+					data.put("mac", elder.getMac());
+					data.put("lat", coordinate.getLat());
+					data.put("lon", coordinate.getLon());
+					data.put("homelat", homelat);
+					data.put("homelon", homelon);
+					map.add(data);
+					continue;
+				}
+			}
+		}
+		return map;
+
 	}
 
 }
