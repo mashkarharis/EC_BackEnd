@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.eldercare.rest.Elder.CareWeb.Models.CareTaker;
 import com.eldercare.rest.Elder.CareWeb.Models.Coordinate;
+import com.eldercare.rest.Elder.CareWeb.Models.Elder;
 import com.eldercare.rest.Elder.CareWeb.Models.Home;
 import com.eldercare.rest.Elder.CareWeb.Models.Token;
 import com.google.api.core.ApiFuture;
@@ -23,12 +24,16 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 
 @Service
 public class IoTService {
 	@Autowired
 	HomeService homeService;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(IoTService.class);
 
 	public void storeCoordinates(Coordinate coordinate) throws Exception {
@@ -65,5 +70,40 @@ public class IoTService {
 		} else {
 			return null;
 		}
+	}
+
+	public String sendNotificationToMAc(String mac,String title) throws Exception {
+		List<Home> homes = homeService.getHomes();
+		for (Home home : homes) {
+			for (CareTaker ct : home.getCareTakers()) {
+				for (Elder elder : ct.getElders()) {
+					if (mac.equals(elder.getMac())) {
+						String str = "";
+						str += "Name : " + elder.getName() + "\n";
+						str += "NIC : " + elder.getNic() + "\n";
+						str += "Phone : " + elder.getPhone() + "\n";
+						str += "MAC : " + elder.getMac() + "\n";
+						str += "Address : " + elder.getAddress() + "\n";
+						System.out.println(str);
+						Message message = Message.builder().setTopic(mac)
+								.setNotification(new Notification(title, str)).putData("content", title)
+								.putData("body", str).build();
+
+						String response = null;
+						try {
+							FirebaseMessaging.getInstance().send(message);
+						} catch (FirebaseMessagingException e) {
+							System.out.println(e.toString());
+						}
+
+						return response;
+
+					}
+				}
+			}
+		}
+
+		return "";
+
 	}
 }
