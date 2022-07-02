@@ -23,6 +23,7 @@ import com.eldercare.rest.Elder.CareWeb.Models.Home;
 import com.eldercare.rest.Elder.CareWeb.Models.Token;
 import com.eldercare.rest.Elder.CareWeb.Services.HomeService;
 import com.eldercare.rest.Elder.CareWeb.Services.IoTService;
+import com.eldercare.rest.Elder.CareWeb.Services.MLModelService;
 import com.eldercare.rest.Elder.CareWeb.Services.MobileService;
 
 @CrossOrigin
@@ -35,6 +36,24 @@ public class MobileController {
 	MobileService mobileTokenService;
 	@Autowired
 	IoTService ioTService;
+	@Autowired
+	MLModelService mlModelService;
+
+	// **********
+	// ML MODEL
+	// **********
+
+	@PostMapping("/mobile/private/predictStroke")
+	public Map predictStroke(@RequestBody Map<String, Object> payload) {
+
+		try {
+			return mlModelService.predictStrokeLevel(payload);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 
 	// **********
 	// AUTH
@@ -234,16 +253,15 @@ public class MobileController {
 		homeService.addHome(finalhome);
 		return;
 	}
-	
+
 	@PostMapping("/mobile/private/deleteelder")
 	public void deleteElders(@RequestBody Map<String, Object> payload) throws Exception {
 
 		String token = payload.get("token").toString();
 		System.out.println(token);
 
-		String nic=payload.get("nic").toString();
+		String nic = payload.get("nic").toString();
 		System.out.println(nic);
-		
 
 		List<Token> tokelist = mobileTokenService.getTokens();
 		System.out.println(tokelist.toString());
@@ -290,8 +308,7 @@ public class MobileController {
 		homeService.addHome(finalhome);
 		return;
 	}
-	
-	
+
 	@PostMapping("/mobile/private/me")
 	public CareTaker myAccount(@RequestBody Map<String, Object> payload) throws Exception {
 
@@ -314,11 +331,11 @@ public class MobileController {
 		System.out.println(email);
 		List<Home> homes = homeService.getHomes();
 
-		CareTaker account=null;
+		CareTaker account = null;
 		for (Home home : homes) {
 			for (CareTaker ct : home.getCareTakers()) {
 				if (ct.getEmail().equals(email)) {
-					account=ct;
+					account = ct;
 					break;
 				}
 			}
@@ -327,10 +344,10 @@ public class MobileController {
 		if (account == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 		}
-		
+
 		return account;
 	}
-	
+
 	@PostMapping("/mobile/private/elderonmap")
 	public List<Map<String, Object>> onMap(@RequestBody Map<String, Object> payload) throws Exception {
 		String token = payload.get("token").toString();
@@ -349,34 +366,34 @@ public class MobileController {
 		}
 
 		System.out.println(email);
-		List<Elder> elderlist=null;
+		List<Elder> elderlist = null;
 		List<Home> homes = homeService.getHomes();
-		double homelat=0;
-		double homelon=0;
+		double homelat = 0;
+		double homelon = 0;
 		for (Home home : homes) {
 			for (CareTaker ct : home.getCareTakers()) {
 				if (ct.getEmail().equals(email)) {
-					homelat=home.getLat();
-					homelon=home.getLon();
-					elderlist= ct.getElders();
+					homelat = home.getLat();
+					homelon = home.getLon();
+					elderlist = ct.getElders();
 				}
 			}
 		}
 
-		if (elderlist==null) {
+		if (elderlist == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 		}
-		
-		List<Coordinate> coordinates=ioTService.getCoordinates();
-		
-		List<Map<String,Object>> map=new ArrayList<>();
-		//System.out.println(coordinates);
-		
+
+		List<Coordinate> coordinates = ioTService.getCoordinates();
+
+		List<Map<String, Object>> map = new ArrayList<>();
+		// System.out.println(coordinates);
+
 		for (Elder elder : elderlist) {
 			for (Coordinate coordinate : coordinates) {
-				System.out.println(elder.getMac()+" - "+coordinate.getMac());
-				if (elder.getMac().length()>0 && elder.getMac().equals(coordinate.getMac())) {
-					HashMap<String, Object> data=new HashMap<String, Object>();
+				System.out.println(elder.getMac() + " - " + coordinate.getMac());
+				if (elder.getMac().length() > 0 && elder.getMac().equals(coordinate.getMac())) {
+					HashMap<String, Object> data = new HashMap<String, Object>();
 					data.put("name", elder.getName());
 					data.put("nic", elder.getNic());
 					data.put("mac", elder.getMac());
